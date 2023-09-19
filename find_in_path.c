@@ -23,7 +23,7 @@ char *find_in_path(char *command)
 	for (i = 0; dir[i]; i++)
 	{
 		_memset(buf, 0, PATH_MAX_LENGTH);
-		_strcpy(buf, dir[i]);
+		strcpy(buf, dir[i]);
 		_strcat(buf, "/");
 		_strcat(buf, command);
 		stat_ret = stat(buf, &st);

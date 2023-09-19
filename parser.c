@@ -26,7 +26,7 @@ char **tokenize(char *str, const char *delim)
 		if (!(ret[i]))
 			return (NULL);
 
-		_strcpy(ret[i], token);
+		strcpy(ret[i], token);
 		token = strtok(NULL, delim);
 		i++;
 	}
