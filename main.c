@@ -23,7 +23,7 @@ int main(int ac, char **av)
 		if (fd == -1)
 		{
 			if (errno == EACCES)
-				exit(126);
+				exit(127);
 			if (errno == ENOENT)
 			{
 				_eputs(av[0]);
@@ -31,7 +31,7 @@ int main(int ac, char **av)
 				_eputs(av[1]);
 				_eputchar('\n');
 				_eputchar(BUF_FLUSH);
-				exit(127);
+				exit(128);
 			}
 			return (EXIT_FAILURE);
 		}

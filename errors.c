@@ -1,22 +1,23 @@
 #include "shell.h"
 
 /**
- * _eputs - prints an input string
+ *_putsfd - prints an input string
  * @str: the string to be printed
+ * @fd: the filedescriptor to write to
  *
- * Return: Nothing
+ * Return: the number of chars put
  */
-void _eputs(char *str)
+int _putsfd(char *str, int fd)
 {
 	int i = 0;
 
 	if (!str)
-		return;
-	while (str[i] != '\0')
+		return (0);
+	while (*str)
 	{
-		_eputchar(str[i]);
-		i++;
+		i += _putfd(*str++, fd);
 	}
+	return (i);
 }
 
 /**
@@ -65,21 +66,21 @@ int _putfd(char c, int fd)
 }
 
 /**
- * _putsfd - prints an input string
+ *_eputs - prints an input string
  * @str: the string to be printed
- * @fd: the filedescriptor to write to
  *
- * Return: the number of chars put
+ * Return: Nothing
  */
-int _putsfd(char *str, int fd)
+void _eputs(char *str)
 {
 	int i = 0;
 
 	if (!str)
-		return (0);
-	while (*str)
+		return;
+	while (str[i] != '\0')
 	{
-		i += _putfd(*str++, fd);
+		_eputchar(str[i]);
+		i++;
 	}
-	return (i);
 }
+

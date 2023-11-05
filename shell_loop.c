@@ -1,46 +1,43 @@
 #include "shell.h"
 
 /**
- * hsh - main shell loop
+ * fork_cmd - forks a an exec thread to run cmd
  * @info: the parameter & return info struct
- * @av: the argument vector from main()
  *
- * Return: 0 on success, 1 on error, or error code
+ * Return: void
  */
-int hsh(info_t *info, char **av)
+void fork_cmd(info_t *info)
 {
-	ssize_t r = 0;
-	int builtin_ret = 0;
+	pid_t child_pid;
 
-	while (r != -1 && builtin_ret != -2)
+	child_pid = fork();
+	if (child_pid == -1)
 	{
-		clear_info(info);
-		if (interactive(info))
-			_puts("$ ");
-		_eputchar(BUF_FLUSH);
-		r = get_input(info);
-		if (r != -1)
+		/* Implement: PUT ERROR FUNCTION */
+		perror("Error:");
+		return;
+	}
+	if (child_pid == 0)
+	{
+		if (execve(info->path, info->argv, get_environ(info)) == -1)
 		{
-			set_info(info, av);
-			builtin_ret = find_builtin(info);
-			if (builtin_ret == -1)
-				find_cmd(info);
+			free_info(info, 1);
+			if (errno == EACCES)
+				exit(126);
+			exit(1);
 		}
-		else if (interactive(info))
-			_putchar('\n');
-		free_info(info, 0);
+		/* Implement: PUT ERROR FUNCTION */
 	}
-	write_history(info);
-	free_info(info, 1);
-	if (!interactive(info) && info->status)
-		exit(info->status);
-	if (builtin_ret == -2)
+	else
 	{
-		if (info->err_num == -1)
-			exit(info->status);
-		exit(info->err_num);
+		wait(&(info->status));
+		if (WIFEXITED(info->status))
+		{
+			info->status = WEXITSTATUS(info->status);
+			if (info->status == 126)
+				print_error(info, "Permission denied\n");
+		}
 	}
-	return (builtin_ret);
 }
 
 /**
@@ -120,41 +117,45 @@ void find_cmd(info_t *info)
 }
 
 /**
- * fork_cmd - forks a an exec thread to run cmd
+ * hsh - main shell loop
  * @info: the parameter & return info struct
+ * @av: the argument vector from main()
  *
- * Return: void
+ * Return: 0 on success, 1 on error, or error code
  */
-void fork_cmd(info_t *info)
+int hsh(info_t *info, char **av)
 {
-	pid_t child_pid;
+	ssize_t r = 0;
+	int builtin_ret = 0;
 
-	child_pid = fork();
-	if (child_pid == -1)
+	while (r != -1 && builtin_ret != -2)
 	{
-		/* TODO: PUT ERROR FUNCTION */
-		perror("Error:");
-		return;
-	}
-	if (child_pid == 0)
-	{
-		if (execve(info->path, info->argv, get_environ(info)) == -1)
+		clear_info(info);
+		if (interactive(info))
+			_puts("$ ");
+		_eputchar(BUF_FLUSH);
+		r = get_input(info);
+		if (r != -1)
 		{
-			free_info(info, 1);
-			if (errno == EACCES)
-				exit(126);
-			exit(1);
+			set_info(info, av);
+			builtin_ret = find_builtin(info);
+			if (builtin_ret == -1)
+				find_cmd(info);
 		}
-		/* TODO: PUT ERROR FUNCTION */
+		else if (interactive(info))
+			_putchar('\n');
+		free_info(info, 0);
 	}
-	else
+	write_history(info);
+	free_info(info, 1);
+	if (!interactive(info) && info->status)
+		exit(info->status);
+	if (builtin_ret == -2)
 	{
-		wait(&(info->status));
-		if (WIFEXITED(info->status))
-		{
-			info->status = WEXITSTATUS(info->status);
-			if (info->status == 126)
-				print_error(info, "Permission denied\n");
-		}
+		if (info->err_num == -1)
+			exit(info->status);
+		exit(info->err_num);
 	}
+	return (builtin_ret);
 }
+
