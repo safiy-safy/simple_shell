@@ -184,7 +184,7 @@ int _myexit(info_t *);
 int _mycd(info_t *);
 int _myhelp(info_t *);
 
-/* illustrate_builtin1.c */
+/* illustrate_builtin0.c */
 int _myhistory(info_t *);
 int _myalias(info_t *);
 
